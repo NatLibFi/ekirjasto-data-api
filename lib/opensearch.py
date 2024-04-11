@@ -7,9 +7,20 @@ from config import settings
 from lib.models import LibMeta, Reservation, Reservations
 
 
-def get_opensearch_client():
-    use_ssl = settings.OPENSEARCH_URL.startswith("https://")
-    return OpenSearch(settings.OPENSEARCH_URL, use_ssl=use_ssl, timeout=20, maxsize=25)
+use_ssl = settings.OPENSEARCH_URL.startswith("https://")
+
+
+def get_os_client():
+    """
+    A dependency function that yields an OpenSearch client.
+    """
+    os_client = OpenSearch(
+        settings.OPENSEARCH_URL, use_ssl=use_ssl, timeout=20, maxsize=25
+    )
+    try:
+        yield os_client
+    finally:
+        os_client.close()
 
 
 def field(hit, field, default=""):
@@ -17,6 +28,7 @@ def field(hit, field, default=""):
 
 
 def get_reservation_events(
+    os_client: OpenSearch,
     collection_name: str,
     page: int,
     size: int,
@@ -54,7 +66,6 @@ def get_reservation_events(
             range["lte"] = to_date
         must.append({"range": {"start": range}})
 
-    os_client = get_opensearch_client()
     query = {
         "size": size,
         "from": (page - 1) * size,
@@ -68,18 +79,21 @@ def get_reservation_events(
     # Extract identifiers from hits and count their occurrences
     identifiers = (field(hit, "identifier") for hit in hits)
     identifier_counts = Counter(identifiers)
+    data = []
+    seen_identifiers = set()  # We need only one item per identifier
 
-    data = [
-        Reservation(
-            identifier=identifier,
-            title=field(hit, "title"),
-            author=field(hit, "author"),
-            count=identifier_counts[identifier],
-        )
-        for hit in hits
-        for identifier in identifier_counts
-        if identifier == field(hit, "identifier")
-    ]
+    for hit in hits:
+        identifier = field(hit, "identifier")
+        if identifier not in seen_identifiers:
+            data.append(
+                Reservation(
+                    identifier=identifier,
+                    title=field(hit, "title"),
+                    author=field(hit, "author"),
+                    count=identifier_counts[identifier],
+                )
+            )
+            seen_identifiers.add(identifier)
 
     meta = LibMeta(collection=collection_name, page=page, page_size=size, total=total)
 
