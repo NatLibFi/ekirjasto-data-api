@@ -1,6 +1,7 @@
 import datetime
 from fastapi import FastAPI, Depends, HTTPException, Query, Security
 from fastapi.security import APIKeyHeader
+from opensearchpy import OpenSearch
 from sqlalchemy.orm import Session
 
 from lib.database import (
@@ -10,7 +11,7 @@ from lib.database import (
     get_reservations_for_identifier,
 )
 from lib.models import Reservation, Reservations, TokenData
-from lib.opensearch import get_reservation_events
+from lib.opensearch import get_os_client, get_reservation_events
 
 app = FastAPI(
     title="E-kirjasto Data API",
@@ -76,6 +77,7 @@ def read_active_reservations_for_license_pool(
 
 @app.get("/reservation-history")
 def read_reservation_history(
+    os_client: OpenSearch = Depends(get_os_client),
     page: int = 1,
     size: int = 100,
     from_date: datetime.date | None = Query(
@@ -91,6 +93,7 @@ def read_reservation_history(
     token_data: TokenData = Depends(get_token_data),
 ) -> Reservations:
     return get_reservation_events(
+        os_client=os_client,
         collection_name=token_data.collection_name,
         page=page,
         size=size,
