@@ -1,0 +1,23 @@
+# Hidden files / folders
+
+.\*
+
+# Temp files
+
+\*~
+
+# Readmes
+
+\*_/_.md
+
+# Python
+
+__pycache__
+
+# Tests
+
+tests
+
+# Mac OS
+
+.DS_Store
