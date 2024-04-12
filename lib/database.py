@@ -1,12 +1,12 @@
 from fastapi import HTTPException
 from sqlalchemy import create_engine, ForeignKey, String, func
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
     sessionmaker,
     relationship,
     Mapped,
     mapped_column,
     Session,
+    declarative_base,
 )
 
 from config import settings
