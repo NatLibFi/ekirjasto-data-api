@@ -1,9 +1,10 @@
 import datetime
-from fastapi import FastAPI, Depends, HTTPException, Query, Security
+from fastapi import FastAPI, Depends, HTTPException, Query, Request, Security
 from fastapi.security import APIKeyHeader
 from opensearchpy import OpenSearch
 from sqlalchemy.orm import Session
 
+from config import settings
 from lib.database import (
     get_api_token,
     get_db,
@@ -15,7 +16,8 @@ from lib.opensearch import get_os_client, get_reservation_events
 
 app = FastAPI(
     title="E-kirjasto Data API",
-    version="1.0.0",
+    root_path=settings.ROOT_PATH,
+    version="1.0.1",
 )
 
 
@@ -48,10 +50,10 @@ def get_token_data(
 
 
 @app.get("/")
-def read_root():
+def read_root(request: Request):
     return {
         "name": app.title,
-        "documentation": app.docs_url,
+        "documentation": f"{request.scope.get('root_path')}{app.docs_url}",
     }
 
 
