@@ -17,7 +17,7 @@ from lib.opensearch import get_os_client, get_reservation_events
 app = FastAPI(
     title="E-kirjasto Data API",
     root_path=settings.ROOT_PATH,
-    version="1.0.1",
+    version="1.0.2",
 )
 
 
