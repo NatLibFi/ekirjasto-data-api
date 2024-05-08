@@ -1,40 +1,88 @@
 from unittest.mock import MagicMock
+from config import settings
+
+mock_event_response = {
+    "hits": {"total": {"value": 7, "relation": "eq"}, "hits": []},
+    "aggregations": {
+        "identifier": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "111",
+                    "doc_count": 3,
+                },
+                {
+                    "key": "222",
+                    "doc_count": 2,
+                },
+                {
+                    "key": "333",
+                    "doc_count": 1,
+                },
+            ],
+        }
+    },
+}
 
 
-mock_search_response = {
+mock_works_response = {
     "hits": {
         "total": {"value": 3, "relation": "eq"},
         "hits": [
             {
                 "_source": {
-                    "identifier": "111",
+                    "identifiers": [
+                        {
+                            "type": "ISBN",
+                            "identifier": "111",
+                        }
+                    ],
                     "title": "Book 1",
                     "author": "Author 1",
-                    "start": "2024-02-01T10:00:00.148927+00:00",
                 }
             },
             {
                 "_source": {
-                    "identifier": "111",
-                    "title": "Book 1",
-                    "author": "Author 1",
-                    "start": "2024-03-01T06:27:16.148927+00:00",
-                }
-            },
-            {
-                "_source": {
-                    "identifier": "222",
+                    "identifiers": [
+                        {
+                            "type": "ISBN",
+                            "identifier": "222",
+                        }
+                    ],
                     "title": "Book 2",
                     "author": "Author 2",
-                    "start": "2024-04-01T06:27:16.148927+00:00",
+                }
+            },
+            {
+                "_source": {
+                    "identifiers": [
+                        {
+                            "type": "ISBN",
+                            "identifier": "333",
+                        }
+                    ],
+                    "title": "Book 3",
+                    "author": "Author 2",
                 }
             },
         ],
     }
 }
 
+
+def mock_search_side_effect(*args, **kwargs):
+    if kwargs["index"] == settings.OPENSEARCH_EVENT_INDEX:
+        return mock_event_response
+    elif kwargs["index"] == settings.OPENSEARCH_WORK_INDEX:
+        return mock_works_response
+    else:
+        raise ValueError("Unexpected index")
+
+
+# Create and configure the mock
 mock_os_client = MagicMock()
-mock_os_client.search.return_value = mock_search_response
+mock_os_client.search.side_effect = mock_search_side_effect
 
 
 def override_get_os_client():

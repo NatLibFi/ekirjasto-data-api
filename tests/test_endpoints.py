@@ -91,8 +91,22 @@ class TestReservationHistory(unittest.TestCase):
         assert response.status_code == 200
 
         output = response.json()
-        assert len(output["data"]) == 2
-        # First book has two reservations
-        assert output["data"][0]["count"] == 2
-        # Second book has one reservation
-        assert output["data"][1]["count"] == 1
+        assert len(output) == 3
+        # Get the books by identifiers
+        book_map = {item["identifier"]: item for item in output}
+        first_book = book_map.get("111", {})
+        second_book = book_map.get("222", {})
+        third_book = book_map.get("333", {})
+        # Test counts
+        assert first_book["count"] == 3
+        assert second_book["count"] == 2
+        assert third_book["count"] == 1
+        # Test identifiers
+        assert first_book["identifier"] == "111"
+        assert second_book["identifier"] == "222"
+        assert third_book["identifier"] == "333"
+        # Test title and author fields
+        assert first_book["title"] == "Book 1"
+        assert first_book["author"] == "Author 1"
+        assert second_book["title"] == "Book 2"
+        assert second_book["author"] == "Author 2"

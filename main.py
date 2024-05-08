@@ -11,7 +11,7 @@ from lib.database import (
     get_holds_with_edition_data,
     get_reservations_for_identifier,
 )
-from lib.models import Reservation, Reservations, TokenData
+from lib.models import Reservation, TokenData
 from lib.opensearch import get_os_client, get_reservation_events
 
 app = FastAPI(
@@ -80,8 +80,6 @@ def read_active_reservations_for_license_pool(
 @app.get("/reservation-history")
 def read_reservation_history(
     os_client: OpenSearch = Depends(get_os_client),
-    page: int = 1,
-    size: int = 100,
     from_date: datetime.date | None = Query(
         default=None,
         alias="from",
@@ -93,12 +91,10 @@ def read_reservation_history(
         description="Format: YYYY-MM-DD",
     ),
     token_data: TokenData = Depends(get_token_data),
-) -> Reservations:
+) -> list[Reservation]:
     return get_reservation_events(
         os_client=os_client,
         collection_name=token_data.collection_name,
-        page=page,
-        size=size,
         from_date=from_date,
         to_date=to_date,
     )
