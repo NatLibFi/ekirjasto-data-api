@@ -1,7 +1,7 @@
 
 FROM python:3.11 as requirements-stage
 WORKDIR /tmp
-RUN pip install poetry
+RUN pip install poetry==1.8.4
 COPY ./pyproject.toml ./poetry.lock* /tmp/
 RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 
