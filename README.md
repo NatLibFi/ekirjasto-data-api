@@ -6,7 +6,7 @@ E-kirjasto Data Api requires access to E-kirjasto Circulation Manager's Postgres
 
 ## Installation
 
-Install Python (^3.11) and Poetry (^1.8) if you don't have them already.
+Install Python (^3.11) and Poetry (^2.5) if you don't have them already.
 
 Install dependencies with:
 

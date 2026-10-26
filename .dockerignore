@@ -1,23 +1,9 @@
-# Hidden files / folders
-
-.\*
-
-# Temp files
-
-\*~
-
-# Readmes
-
-\*_/_.md
-
-# Python
-
-__pycache__
-
-# Tests
-
-tests
-
-# Mac OS
-
+.git
+.github
+.env
+.venv
+.pytest_cache
 .DS_Store
+**/__pycache__
+*.py[cod]
+tests
