@@ -5,7 +5,6 @@ from opensearchpy import OpenSearch
 from config import settings
 from lib.models import Reservation
 
-
 use_ssl = settings.OPENSEARCH_URL.startswith("https://")
 
 

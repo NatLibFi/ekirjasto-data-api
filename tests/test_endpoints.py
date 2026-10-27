@@ -9,7 +9,6 @@ from lib.opensearch import get_os_client
 from tests.database_testsetup import override_get_db
 from tests.opensearch_testsetup import override_get_os_client
 
-
 # Patch the get_db and get_os_client functions with test versions
 app.dependency_overrides[get_db] = override_get_db
 app.dependency_overrides[get_os_client] = override_get_os_client
@@ -27,7 +26,7 @@ class TestAppRoot(unittest.TestCase):
 class TestActiveReservations(unittest.TestCase):
     def test_active_reservations_unauthorized(self):
         response = client.get("/active-reservations")
-        assert response.status_code == 403
+        assert response.status_code == 401
         assert response.json().get("detail") == "Not authenticated"
 
     def test_active_reservations_for_collection1(self):
@@ -74,14 +73,14 @@ class TestActiveReservations(unittest.TestCase):
 class TestActiveReservationsForLicensePool(unittest.TestCase):
     def test_active_reservations_for_license_pool_unauthorized(self):
         response = client.get("/active-reservations/123")
-        assert response.status_code == 403
+        assert response.status_code == 401
         assert response.json().get("detail") == "Not authenticated"
 
 
 class TestReservationHistory(unittest.TestCase):
     def test_reservation_history_unauthorized(self):
         response = client.get("/reservation-history")
-        assert response.status_code == 403
+        assert response.status_code == 401
         assert response.json().get("detail") == "Not authenticated"
 
     def test_get_reservation_history(self):
